@@ -1,4 +1,4 @@
-# Projeto Final - Curso FastAPI do Zero (MADRs)
+fastapi-final-project
 
 Este repositório contém meu projeto de finalização do curso [FastAPI do Zero](https://fastapidozero.dunossauro.com/estavel/15/), organizado pelo @dunossauro.
 
@@ -34,7 +34,8 @@ Escolhido devido a facilidade de uso, eficiência e validação automática de d
 - SQLAlchemy para ORM;
 - Alembic para migração de banco de dados;
 - Passlib e pyjwt para hash de senhas e validação de tokens JWT;
-- Docker para containerização;
+- loguru para logging;
+- Docker para containerização; e
 - GitHub Actions para integração contínua.
 
 ### 2.3. Estrutura do Projeto
