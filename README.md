@@ -1,4 +1,4 @@
-fastapi-final-project
+# fastapi-final-project
 
 Este repositório contém meu projeto de finalização do curso [FastAPI do Zero](https://fastapidozero.dunossauro.com/estavel/15/), organizado pelo @dunossauro.
 
@@ -46,6 +46,36 @@ A estrutura do projeto foi feita em uma unica camada devido a simplicidade e fal
 
 Commit inicial do projeto.
 
-## 4. Resultados
+## 4. Como Rodar
+
+Para rodar o projeto, é necessário ter o Poetry instalado. Além disso, siga os seguintes passos:
+
+1. Clone o repositório:
+   ```
+   git clone https://github.com/seu_usuario/fastapi-final-project.git
+   cd fastapi-final-project
+   ```
+
+2. Inicie o ambiente Poetry:
+   ```
+   poetry install
+   ```
+
+3. Entre nele:
+   ```
+   poetry shell
+   ```
+
+4. Rode os testes com:
+   ```
+   task test
+   ```
+
+5. Execute a API com:
+   ```
+   task run
+   ```
+
+## 5. Resultados
 
 ...

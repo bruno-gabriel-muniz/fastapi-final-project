@@ -42,7 +42,7 @@ pre_format = 'ruff check --fix'
 format = 'ruff format'
 run = 'fastapi dev src/tcc_madrs/app.py'
 pre_test = 'task lint'
-test = 'pytest -s -x --cov=src/tcc_madrs -vv'
+test = 'pytest -x --cov=src/tcc_madrs -vv'
 post_test = 'coverage html'
 
 
