@@ -44,7 +44,7 @@ A estrutura do projeto foi feita em uma unica camada devido a simplicidade e fal
 
 ## 3. Progresso Atual
 
-Commit inicial do projeto.
+Iniciando o sistema de usuários, inicialmente só com a opção de criação de usuários.
 
 ## 4. Como Rodar
 
