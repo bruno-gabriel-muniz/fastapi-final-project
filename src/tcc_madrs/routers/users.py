@@ -3,6 +3,7 @@ from re import sub
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
+from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -22,10 +23,14 @@ T_Session = Annotated[Session, Depends(get_session)]
 
 @router.post('/', status_code=HTTPStatus.CREATED, response_model=UserPublic)
 def create_user(user: UserSchema, db: T_Session):
+    logger.info('iniciando a criação de um novo usuário')
+
     # Realiza a sanitização dos dados
+    logger.info('sanitizando o username')
     user.username = sanitize(user.username)
 
     # Verifica se existem conflitos entre os usuários
+    logger.info('verificando conflitos')
     user_exist = db.scalar(
         select(User).where(
             (User.username == user.username) | (User.email == user.email)
@@ -33,11 +38,13 @@ def create_user(user: UserSchema, db: T_Session):
     )
 
     if user_exist:
+        logger.info('conflito encontrado')
         raise HTTPException(
             HTTPStatus.CONFLICT, 'Email or UserName Alredy Exist'
         )
 
     # Cria um novo usuário
+    logger.info('criando o usuário')
     new_user = User(
         user.username, user.email, get_password_hash(user.password)
     )
