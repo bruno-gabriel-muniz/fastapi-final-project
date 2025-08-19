@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from loguru import logger
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.tcc_madrs.database import get_session
 from src.tcc_madrs.models import User
@@ -18,11 +18,11 @@ def sanitize(username: str):
 
 
 router = APIRouter(prefix='/users', tags=['users'])
-T_Session = Annotated[Session, Depends(get_session)]
+T_Session = Annotated[AsyncSession, Depends(get_session)]
 
 
 @router.post('/', status_code=HTTPStatus.CREATED, response_model=UserPublic)
-def create_user(user: UserSchema, db: T_Session):
+async def create_user(user: UserSchema, db: T_Session):
     logger.info('iniciando a criação de um novo usuário')
 
     # Realiza a sanitização dos dados
@@ -31,7 +31,7 @@ def create_user(user: UserSchema, db: T_Session):
 
     # Verifica se existem conflitos entre os usuários
     logger.info('verificando conflitos')
-    user_exist = db.scalar(
+    user_exist = await db.scalar(
         select(User).where(
             (User.username == user.username) | (User.email == user.email)
         )
@@ -50,7 +50,7 @@ def create_user(user: UserSchema, db: T_Session):
     )
 
     db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    await db.commit()
+    await db.refresh(new_user)
 
     return new_user

@@ -1,7 +1,8 @@
 import pytest
+import pytest_asyncio
 from fastapi.testclient import TestClient
-from sqlalchemy import StaticPool, create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy import StaticPool
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from src.tcc_madrs.app import app
 from src.tcc_madrs.database import get_session
@@ -21,23 +22,25 @@ def client(session):
     app.dependency_overrides.clear()
 
 
-@pytest.fixture
-def session():
-    engine = create_engine(
-        'sqlite:///:memory:',
+@pytest_asyncio.fixture
+async def session():
+    engine = create_async_engine(
+        'sqlite+aiosqlite:///:memory:',
         connect_args={'check_same_thread': False},
         poolclass=StaticPool,
     )
-    table_registry.metadata.create_all(engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(table_registry.metadata.create_all)
 
-    with Session(engine) as session:
+    async with AsyncSession(engine, expire_on_commit=False) as session:
         yield session
 
-    table_registry.metadata.drop_all(engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(table_registry.metadata.drop_all)
 
 
-@pytest.fixture
-def users(session) -> list[dict[str, str]]:
+@pytest_asyncio.fixture
+async def users(session) -> list[dict[str, str]]:
     # Cria os usuários
     password_hashed = get_password_hash('secret')
 
@@ -60,6 +63,6 @@ def users(session) -> list[dict[str, str]]:
 
     session.add(alice)
     session.add(bob)
-    session.commit()
+    await session.commit()
 
     return out

@@ -1,14 +1,15 @@
 from loguru import logger
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from src.tcc_madrs.settings import Settings
 
 logger.info('criando a engine do DB')
-engine = create_engine(Settings().DATABASE_URL)
+engine = create_async_engine(Settings().DATABASE_URL)
 
 
-def get_session():
-    with Session(engine) as session:  # pragma: no cover
+async def get_session():
+    async with AsyncSession(
+        engine, expire_on_commit=False
+    ) as session:  # pragma: no cover
         logger.info('disponibilizando uma sessão')
         yield session
