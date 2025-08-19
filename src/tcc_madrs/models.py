@@ -1,4 +1,5 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column, registry
@@ -17,8 +18,10 @@ class User:
     password: Mapped[str]
 
     created_at: Mapped[datetime] = mapped_column(
-        init=False, server_default=func.now()
+        init=False, server_default=func.now(ZoneInfo('UTC'))
     )
     updated_at: Mapped[datetime] = mapped_column(
-        init=False, server_default=func.now(), onupdate=func.now()
+        init=False,
+        server_default=func.now(ZoneInfo('UTC')),
+        onupdate=func.now(ZoneInfo('UTC')),
     )
