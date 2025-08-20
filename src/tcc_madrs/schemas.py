@@ -15,3 +15,8 @@ class UserPublic(BaseModel):
     username: str
     email: EmailStr
     id: int
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
