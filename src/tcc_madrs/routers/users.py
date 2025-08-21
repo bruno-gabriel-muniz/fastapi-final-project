@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.tcc_madrs.database import get_session
 from src.tcc_madrs.models import User
 from src.tcc_madrs.schemas import UserPublic, UserSchema
-from src.tcc_madrs.security import get_password_hash
+from src.tcc_madrs.security import get_current_user, get_password_hash
 
 
 def sanitize(username: str):
@@ -19,6 +19,7 @@ def sanitize(username: str):
 
 router = APIRouter(prefix='/conta', tags=['conta'])
 T_Session = Annotated[AsyncSession, Depends(get_session)]
+T_User = Annotated[User, Depends(get_current_user)]
 
 
 @router.post('/', status_code=HTTPStatus.CREATED, response_model=UserPublic)
@@ -54,3 +55,34 @@ async def create_user(user: UserSchema, db: T_Session):
     await db.refresh(new_user)
 
     return new_user
+
+
+@router.put('/{id}', status_code=HTTPStatus.OK, response_model=UserPublic)
+async def update_user(
+    id: int, user: UserSchema, session: T_Session, db_user: T_User
+):
+    if db_user.id != id:
+        raise HTTPException(
+            HTTPStatus.FORBIDDEN,
+            'Alterações em outras contas não são permitadas',
+        )
+
+    data_in_use = await session.scalar(
+        select(User).where(
+            (User.email == user.email) | (User.username == user.username)
+        )
+    )
+    if data_in_use and data_in_use.id != id:
+        raise HTTPException(
+            HTTPStatus.CONFLICT, 'email ou username já consta no MADR'
+        )
+
+    db_user.username = user.username
+    db_user.email = user.email
+    db_user.password = user.password
+
+    session.add(db_user)
+    await session.commit()
+    await session.refresh(db_user)
+
+    return db_user
