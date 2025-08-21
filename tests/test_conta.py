@@ -1,9 +1,14 @@
 from http import HTTPStatus
 
+import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.tcc_madrs.models import User
 
 
-def test_post_user(client: TestClient):
+def test_post_conta(client: TestClient):
     response = client.post(
         '/conta/',
         json={
@@ -21,7 +26,7 @@ def test_post_user(client: TestClient):
     assert data['email'] == 'alice@example.com'
 
 
-def test_post_user_conflit(client: TestClient, users: list[dict[str, str]]):
+def test_post_conta_conflit(client: TestClient, users: list[dict[str, str]]):
     response = client.post(
         '/conta/',
         json={
@@ -38,7 +43,7 @@ def test_post_user_conflit(client: TestClient, users: list[dict[str, str]]):
     assert data['detail'] == 'Email or UserName Alredy Exist'
 
 
-def test_update_user(client, users):
+def test_update_conta(client: TestClient, users: list[dict[str, str]]):
     response = client.put(
         '/conta/1',
         headers={'Authorization': f'Bearer {users[0]["token"]}'},
@@ -56,7 +61,7 @@ def test_update_user(client, users):
     assert data['username'] == 'Alice'
 
 
-def test_update_user_conflit(client, users):
+def test_update_conta_conflit(client: TestClient, users: list[dict[str, str]]):
     response = client.put(
         '/conta/2',
         headers={'Authorization': f'Bearer {users[1]["token"]}'},
@@ -71,7 +76,9 @@ def test_update_user_conflit(client, users):
     assert response.json()['detail'] == 'email ou username já consta no MADR'
 
 
-def test_update_user_forbidden(client, users):
+def test_update_conta_forbidden(
+    client: TestClient, users: list[dict[str, str]]
+):
     response = client.put(
         '/conta/1',
         headers={'Authorization': f'Bearer {users[1]["token"]}'},
@@ -86,4 +93,33 @@ def test_update_user_forbidden(client, users):
     assert (
         response.json()['detail']
         == 'Alterações em outras contas não são permitadas'
+    )
+
+
+@pytest.mark.asyncio
+async def test_delete_conta(
+    client: TestClient, users: list[dict[str, str]], session: AsyncSession
+):
+    response = client.delete(
+        '/conta/1', headers={'Authorization': f'Bearer {users[0]["token"]}'}
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json()['message'] == 'Conta deletada com sucesso'
+
+    user_exist = await session.scalar(select(User).where(User.id == 1))
+
+    assert user_exist is None
+
+
+def test_delete_conta_forbidden(
+    client: TestClient, users: list[dict[str, str]]
+):
+    response = client.delete(
+        '/conta/1', headers={'Authorization': f'Bearer {users[1]["token"]}'}
+    )
+
+    assert response.status_code == HTTPStatus.FORBIDDEN
+    assert (
+        response.json()['detail'] == 'Deleção de outras contas não permitido'
     )

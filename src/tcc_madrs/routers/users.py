@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.tcc_madrs.database import get_session
 from src.tcc_madrs.models import User
-from src.tcc_madrs.schemas import UserPublic, UserSchema
+from src.tcc_madrs.schemas import Message, UserPublic, UserSchema
 from src.tcc_madrs.security import get_current_user, get_password_hash
 
 
@@ -92,3 +92,21 @@ async def update_user(
 
     logger.info('retornando')
     return db_user
+
+
+@router.delete('/{id}', status_code=HTTPStatus.OK, response_model=Message)
+async def delete_user(id: int, user: T_User, session: T_Session):
+    logger.info('iniciando deleção de conta')
+
+    logger.info('verificando o id da conta')
+    if id != user.id:
+        logger.info('id incorreto, avisando o cliente')
+        raise HTTPException(
+            status_code=HTTPStatus.FORBIDDEN,
+            detail='Deleção de outras contas não permitido',
+        )
+
+    logger.info('deletando a conta do banco de dados')
+    await session.delete(user)
+
+    return {'message': 'Conta deletada com sucesso'}

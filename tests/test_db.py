@@ -3,6 +3,7 @@ from zoneinfo import ZoneInfo
 
 import pytest
 from freezegun import freeze_time
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.tcc_madrs.models import User
 
@@ -10,7 +11,7 @@ from src.tcc_madrs.models import User
 
 
 @pytest.mark.asyncio
-async def test_created_at(session):
+async def test_created_at(session: AsyncSession):
     with freeze_time(datetime.now(ZoneInfo('UTC'))) as time_test:
         user = User('test', 'test@example.com', 'secret')
         session.add(user)
@@ -26,7 +27,7 @@ async def test_created_at(session):
 
 
 @pytest.mark.asyncio
-async def test_updated_at(session):
+async def test_updated_at(session: AsyncSession):
     with freeze_time(datetime.now(ZoneInfo('UTC'))) as time_test:
         user = User('test', 'test@example.com', 'secret')
         session.add(user)
