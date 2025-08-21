@@ -17,7 +17,7 @@ def sanitize(username: str):
     return sub(' {2,}', ' ', username.lower()).strip(' ')
 
 
-router = APIRouter(prefix='/users', tags=['users'])
+router = APIRouter(prefix='/conta', tags=['conta'])
 T_Session = Annotated[AsyncSession, Depends(get_session)]
 
 

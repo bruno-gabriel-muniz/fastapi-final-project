@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 def test_post_user(client):
     response = client.post(
-        '/users/',
+        '/conta/',
         json={
             'username': 'Alice',
             'email': 'alice@example.com',
@@ -21,7 +21,7 @@ def test_post_user(client):
 
 def test_post_user_conflit(client, users):
     response = client.post(
-        '/users/',
+        '/conta/',
         json={
             'username': 'Alice',
             'email': 'alice@example.com',
