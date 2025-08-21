@@ -44,7 +44,9 @@ A estrutura do projeto foi feita em uma unica camada devido a simplicidade e fal
 
 ## 3. Progresso Atual
 
-Iniciando o sistema de usuários, inicialmente só com a opção de criação de usuários.
+Sistema de usuário, autenticação, docker e banco de dados funcionando.
+
+Próximos passo: Aplicar o CRUD dos livros e dos romancistas.
 
 ## 4. Como Rodar
 
