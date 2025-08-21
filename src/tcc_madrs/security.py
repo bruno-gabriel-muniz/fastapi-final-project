@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jwt import DecodeError, ExpiredSignatureError, decode, encode
+from loguru import logger
 from pwdlib import PasswordHash
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -33,6 +34,8 @@ def valid_password_hash(password: str, hash: str) -> bool:
 def create_access_token(data: dict) -> str:
     settings = Settings()  # type: ignore
 
+    logger.info('criando token')
+
     to_encode = data.copy()
     expire = datetime.now(tz=ZoneInfo('UTC')) + timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
@@ -40,16 +43,23 @@ def create_access_token(data: dict) -> str:
     to_encode.update({'exp': expire})
 
     token = encode(to_encode, settings.SECRET_KEY, settings.ALGORITHM)
+
+    logger.info('retornando')
     return token
 
 
 async def get_current_user(session: T_Session, token: T_Form_Barear):
+    logger.info('autenticando o user')
+
     credentials_error = HTTPException(
         HTTPStatus.UNAUTHORIZED,
         detail='Could not validate credentials',
         headers={'WWW-Authenticate': 'Bearer'},
     )
     stg = Settings()  # type: ignore
+
+    logger.info('lendo e validando os dados do token')
+
     try:
         pyload = decode(token, stg.SECRET_KEY, [stg.ALGORITHM])
         email: str = pyload.get('sub')
@@ -68,4 +78,5 @@ async def get_current_user(session: T_Session, token: T_Form_Barear):
     if not user:
         raise credentials_error
 
+    logger.info('retornando')
     return user

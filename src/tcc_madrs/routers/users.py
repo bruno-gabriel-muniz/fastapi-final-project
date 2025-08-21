@@ -61,6 +61,9 @@ async def create_user(user: UserSchema, db: T_Session):
 async def update_user(
     id: int, user: UserSchema, session: T_Session, db_user: T_User
 ):
+    logger.info('iniciando a alteração de um user')
+
+    logger.info('validando as permissões e os conflitos')
     if db_user.id != id:
         raise HTTPException(
             HTTPStatus.FORBIDDEN,
@@ -77,12 +80,15 @@ async def update_user(
             HTTPStatus.CONFLICT, 'email ou username já consta no MADR'
         )
 
+    logger.info('alterando o user')
     db_user.username = user.username
     db_user.email = user.email
     db_user.password = user.password
 
+    logger.info('salvando as alterações')
     session.add(db_user)
     await session.commit()
     await session.refresh(db_user)
 
+    logger.info('retornando')
     return db_user
