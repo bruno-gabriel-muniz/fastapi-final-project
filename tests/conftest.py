@@ -1,6 +1,10 @@
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
 import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
+from jwt import encode
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from testcontainers.postgres import PostgresContainer
 
@@ -8,6 +12,12 @@ from src.tcc_madrs.app import app
 from src.tcc_madrs.database import get_session
 from src.tcc_madrs.models import User, table_registry
 from src.tcc_madrs.security import get_password_hash
+from src.tcc_madrs.settings import Settings
+
+
+@pytest.fixture
+def settings():
+    return Settings()  # type: ignore
 
 
 @pytest.fixture
@@ -42,12 +52,28 @@ async def session(engine):
 
 
 @pytest_asyncio.fixture
-async def users(session) -> list[dict[str, str]]:
+async def users(session, settings) -> list[dict[str, str]]:
     # Cria os usuários
     password_hashed = get_password_hash('secret')
 
     alice = User('alice', 'alice@example.com', password_hashed)
+    token_alice = encode(
+        {
+            'sub': 'alice@example.com',
+            'exp': datetime.now(ZoneInfo('UTC')) + timedelta(minutes=5),
+        },
+        settings.SECRET_KEY,
+        settings.ALGORITHM,
+    )
     bob = User('bob', 'bob@example.com', password_hashed)
+    token_bob = encode(
+        {
+            'sub': 'bob@example.com',
+            'exp': datetime.now(ZoneInfo('UTC')) + timedelta(minutes=5),
+        },
+        settings.SECRET_KEY,
+        settings.ALGORITHM,
+    )
 
     # Cria a cunsulta dos dados deles
     out = [
@@ -55,11 +81,13 @@ async def users(session) -> list[dict[str, str]]:
             'username': 'alice',
             'email': 'alice@example.com',
             'password': 'secret',
+            'token': token_alice,
         },
         {
             'username': 'bob',
             'email': 'bob@example.com',
             'password': 'secret',
+            'token': token_bob,
         },
     ]
 
@@ -68,3 +96,30 @@ async def users(session) -> list[dict[str, str]]:
     await session.commit()
 
     return out
+
+
+@pytest.fixture
+def fake_token(settings):
+    fk_token = encode(
+        {
+            'sub': 'Bob@example.com',
+            'exp': datetime.now(ZoneInfo('UTC')) + timedelta(minutes=5),
+        },
+        settings.SECRET_KEY,
+        settings.ALGORITHM,
+    )
+    return fk_token
+
+
+@pytest.fixture
+def fake_token_without_sub(settings):
+    fake_token = encode(
+        {
+            # 'sub': 'Bob@example.com',
+            'exp': datetime.now(ZoneInfo('UTC')) + timedelta(minutes=5),
+        },
+        settings.SECRET_KEY,
+        settings.ALGORITHM,
+    )
+
+    return fake_token
