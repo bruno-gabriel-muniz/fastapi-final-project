@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from re import sub
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -9,13 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.tcc_madrs.database import get_session
 from src.tcc_madrs.models import User
+from src.tcc_madrs.sanitize import sanitize
 from src.tcc_madrs.schemas import Message, UserPublic, UserSchema
 from src.tcc_madrs.security import get_current_user, get_password_hash
-
-
-def sanitize(username: str):
-    return sub(' {2,}', ' ', username.lower()).strip(' ')
-
 
 router = APIRouter(prefix='/conta', tags=['conta'])
 T_Session = Annotated[AsyncSession, Depends(get_session)]

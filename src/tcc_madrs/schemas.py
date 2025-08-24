@@ -17,6 +17,21 @@ class UserPublic(BaseModel):
     id: int
 
 
+class NovelistInput(BaseModel):
+    name: str
+
+
+class NovelistDB(NovelistInput):
+    id: int
+
+
+# class Book(BaseModel):
+#     ano: int
+#     nome: str
+#     romancista_id: int
+#     id: int
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str

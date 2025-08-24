@@ -10,7 +10,7 @@ from testcontainers.postgres import PostgresContainer
 
 from src.tcc_madrs.app import app
 from src.tcc_madrs.database import get_session
-from src.tcc_madrs.models import User, table_registry
+from src.tcc_madrs.models import Novelist, User, table_registry
 from src.tcc_madrs.security import get_password_hash
 from src.tcc_madrs.settings import Settings
 
@@ -123,3 +123,14 @@ def fake_token_without_sub(settings):
     )
 
     return fake_token
+
+
+@pytest_asyncio.fixture
+async def novelist(session):
+    novelist1 = Novelist('test1')
+
+    session.add(novelist1)
+    await session.commit()
+    await session.refresh(novelist1)
+
+    return novelist1

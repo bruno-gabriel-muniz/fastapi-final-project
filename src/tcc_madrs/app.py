@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.tcc_madrs.database import get_session
 from src.tcc_madrs.models import User
+from src.tcc_madrs.routers.novelist import router as router_novelist
 from src.tcc_madrs.routers.users import router as router_users
 from src.tcc_madrs.schemas import Token
 from src.tcc_madrs.security import (
@@ -21,6 +22,7 @@ logger.add('app.log', rotation='500 KB')
 logger.info('iniciando o app')
 app = FastAPI()
 
+app.include_router(router_novelist)
 app.include_router(router_users)
 
 T_Session = Annotated[AsyncSession, Depends(get_session)]
