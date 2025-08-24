@@ -16,7 +16,7 @@ from src.tcc_madrs.settings import Settings
 
 
 @pytest.fixture
-def settings():
+def settings() -> Settings:
     return Settings()  # type: ignore
 
 
@@ -99,7 +99,7 @@ async def users(session, settings) -> list[dict[str, str]]:
 
 
 @pytest.fixture
-def fake_token(settings):
+def fake_token(settings) -> str:
     fk_token = encode(
         {
             'sub': 'Bob@example.com',
@@ -112,7 +112,7 @@ def fake_token(settings):
 
 
 @pytest.fixture
-def fake_token_without_sub(settings):
+def fake_token_without_sub(settings) -> str:
     fake_token = encode(
         {
             # 'sub': 'Bob@example.com',
@@ -126,7 +126,7 @@ def fake_token_without_sub(settings):
 
 
 @pytest_asyncio.fixture
-async def novelist(session):
+async def novelist(session) -> Novelist:
     novelist1 = Novelist('test1')
 
     session.add(novelist1)

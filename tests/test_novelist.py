@@ -1,6 +1,9 @@
 from http import HTTPStatus
 
+import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.tcc_madrs.models import Novelist
 
@@ -33,3 +36,37 @@ def test_create_novelist_conf(
 
     assert response.status_code == HTTPStatus.CONFLICT
     assert response.json()['detail'] == 'romancista já consta no MADR'
+
+
+@pytest.mark.asyncio
+async def test_delete_novelist(
+    client: TestClient,
+    users: list[dict[str, str]],
+    session: AsyncSession,
+    novelist: Novelist,
+):
+    response = client.delete(
+        '/romancista/1',
+        headers={'Authorization': f'Bearer {users[0]["token"]}'},
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json()['message'] == 'Romancista deletada no MADR'
+
+    novelist_in_db = await session.scalar(
+        select(Novelist).where(Novelist.id == novelist.id)
+    )
+
+    assert novelist_in_db is None
+
+
+def test_delete_novelist_not_found(
+    client: TestClient, users: list[dict[str, str]]
+):
+    response = client.delete(
+        '/romancista/1',
+        headers={'Authorization': f'Bearer {users[0]["token"]}'},
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json()['detail'] == 'Romancista não encontrado no MADR'

@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.tcc_madrs.database import get_session
 from src.tcc_madrs.models import Novelist, User
 from src.tcc_madrs.sanitize import sanitize
-from src.tcc_madrs.schemas import NovelistDB, NovelistInput
+from src.tcc_madrs.schemas import Message, NovelistDB, NovelistInput
 from src.tcc_madrs.security import get_current_user
 
 router = APIRouter(prefix='/romancista', tags=['romancistas'])
@@ -51,3 +51,22 @@ async def create_novelist(
     await session.refresh(novelist_db)
 
     return novelist_db
+
+
+@router.delete('/{id}', status_code=HTTPStatus.OK, response_model=Message)
+async def delete_novelist(
+    id: int,
+    user: T_User,
+    session: T_Session,
+):
+    novelist = await session.scalar(select(Novelist).where(Novelist.id == id))
+
+    if not novelist:
+        raise HTTPException(
+            HTTPStatus.NOT_FOUND,
+            detail='Romancista não encontrado no MADR',
+        )
+
+    await session.delete(novelist)
+
+    return {'message': 'Romancista deletada no MADR'}
