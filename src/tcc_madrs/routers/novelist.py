@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,12 +9,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.tcc_madrs.database import get_session
 from src.tcc_madrs.models import Novelist, User
 from src.tcc_madrs.sanitize import sanitize
-from src.tcc_madrs.schemas import Message, NovelistDB, NovelistInput
+from src.tcc_madrs.schemas import (
+    FilterNovelist,
+    ListNovelist,
+    Message,
+    NovelistDB,
+    NovelistInput,
+)
 from src.tcc_madrs.security import get_current_user
 
 router = APIRouter(prefix='/romancista', tags=['romancistas'])
 T_Session = Annotated[AsyncSession, Depends(get_session)]
 T_User = Annotated[User, Depends(get_current_user)]
+T_Filter = Annotated[FilterNovelist, Query()]
 
 
 @router.post('/', status_code=HTTPStatus.CREATED, response_model=NovelistDB)
@@ -97,3 +104,24 @@ async def get_novelist_id(
 
     logger.info('retornando o novelista')
     return novelist
+
+
+@router.get('/', status_code=HTTPStatus.OK, response_model=ListNovelist)
+async def get_novelist_by_filter(
+    filter: T_Filter,
+    session: T_Session,
+    user: T_User,
+):
+    logger.info('iniciando um get romancista por filtro')
+
+    logger.info('criando os filtros')
+    query = select(Novelist)
+
+    if filter.name:
+        query = query.filter(Novelist.name.contains(filter.name))
+
+    logger.info('retornando os resultados')
+    result = await session.scalars(
+        query.offset(filter.offset).limit(filter.limit)
+    )
+    return {'romancistas': result.all()}

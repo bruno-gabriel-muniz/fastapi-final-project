@@ -25,6 +25,19 @@ class NovelistDB(NovelistInput):
     id: int
 
 
+class FilterPage(BaseModel):
+    limit: int = 20
+    offset: int = 0
+
+
+class FilterNovelist(FilterPage):
+    name: str | None = None
+
+
+class ListNovelist(BaseModel):
+    romancistas: list[NovelistDB] = []
+
+
 # class Book(BaseModel):
 #     ano: int
 #     nome: str

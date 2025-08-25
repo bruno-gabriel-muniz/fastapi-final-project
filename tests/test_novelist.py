@@ -87,8 +87,7 @@ def test_get_novelist_id(
 
 
 def test_get_novelist_id_not_found(
-    client: TestClient,
-    users: list[dict[str, str]]
+    client: TestClient, users: list[dict[str, str]]
 ):
     response = client.get(
         '/romancista/1',
@@ -97,3 +96,37 @@ def test_get_novelist_id_not_found(
 
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json()['detail'] == 'Romancista não consta no MADR'
+
+
+def test_get_novelist_by_filter(
+    client: TestClient,
+    novelists: list[dict[str, str | int]],
+    users: list[dict[str, str]],
+):
+    response = client.get(
+        '/romancista/?name=t',
+        headers={'Authorization': f'bearer {users[0]["token"]}'},
+    )
+
+    assert response.status_code == HTTPStatus.OK
+
+    data = response.json()
+
+    assert data['romancistas'] == novelists
+
+
+def test_get_novelist_by_filter_without_novelist_valid(
+    client: TestClient,
+    novelists: list[dict[str, str | int]],
+    users: list[dict[str, str]],
+):
+    response = client.get(
+        '/romancista/?name=a',
+        headers={'Authorization': f'bearer {users[0]["token"]}'},
+    )
+
+    assert response.status_code == HTTPStatus.OK
+
+    data = response.json()
+
+    assert data['romancistas'] == []

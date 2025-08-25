@@ -21,7 +21,7 @@ def settings() -> Settings:
 
 
 @pytest.fixture
-def client(session):
+def client(session: AsyncSession):
     def get_session_override():
         return session
 
@@ -52,7 +52,9 @@ async def session(engine):
 
 
 @pytest_asyncio.fixture
-async def users(session, settings) -> list[dict[str, str]]:
+async def users(
+    session: AsyncSession, settings: Settings
+) -> list[dict[str, str]]:
     # Cria os usuários
     password_hashed = get_password_hash('secret')
 
@@ -99,7 +101,7 @@ async def users(session, settings) -> list[dict[str, str]]:
 
 
 @pytest.fixture
-def fake_token(settings) -> str:
+def fake_token(settings: Settings) -> str:
     fk_token = encode(
         {
             'sub': 'Bob@example.com',
@@ -112,7 +114,7 @@ def fake_token(settings) -> str:
 
 
 @pytest.fixture
-def fake_token_without_sub(settings) -> str:
+def fake_token_without_sub(settings: Settings) -> str:
     fake_token = encode(
         {
             # 'sub': 'Bob@example.com',
@@ -126,7 +128,7 @@ def fake_token_without_sub(settings) -> str:
 
 
 @pytest_asyncio.fixture
-async def novelist(session) -> Novelist:
+async def novelist(session: AsyncSession) -> Novelist:
     novelist1 = Novelist('test1')
 
     session.add(novelist1)
@@ -134,3 +136,25 @@ async def novelist(session) -> Novelist:
     await session.refresh(novelist1)
 
     return novelist1
+
+
+@pytest_asyncio.fixture
+async def novelists(session: AsyncSession) -> list[dict[str, str | int]]:
+    novelist1 = Novelist('test1')
+    novelist2 = Novelist('test2')
+    novelist3 = Novelist('test3')
+
+    session.add(novelist1)
+    session.add(novelist2)
+    session.add(novelist3)
+
+    await session.commit()
+
+    list_novelist = [
+        {'name': 'test1', 'id': 1},
+        {'name': 'test2', 'id': 2},
+        {'name': 'test3', 'id': 3},
+
+    ]
+
+    return list_novelist
