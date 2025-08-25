@@ -17,7 +17,7 @@ T_Session = Annotated[AsyncSession, Depends(get_session)]
 T_User = Annotated[User, Depends(get_current_user)]
 
 
-@router.post('/', response_model=NovelistDB, status_code=HTTPStatus.CREATED)
+@router.post('/', status_code=HTTPStatus.CREATED, response_model=NovelistDB)
 async def create_novelist(
     novelist: NovelistInput,
     session: T_Session,
@@ -70,3 +70,19 @@ async def delete_novelist(
     await session.delete(novelist)
 
     return {'message': 'Romancista deletada no MADR'}
+
+
+@router.get('/{id}', status_code=HTTPStatus.OK, response_model=NovelistDB)
+async def get_novelist_id(
+    id: int,
+    session: T_Session,
+    user: T_User,
+):
+    novelist = await session.scalar(select(Novelist).where(Novelist.id == id))
+
+    if not novelist:
+        raise HTTPException(
+            HTTPStatus.NOT_FOUND, detail='Romancista não consta no MADR'
+        )
+
+    return novelist

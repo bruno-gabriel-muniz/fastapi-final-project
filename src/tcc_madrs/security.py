@@ -17,7 +17,7 @@ from src.tcc_madrs.settings import Settings
 
 pwd_context = PasswordHash.recommended()
 
-oauth2_schme = OAuth2PasswordBearer(tokenUrl='/auth/')
+oauth2_schme = OAuth2PasswordBearer(tokenUrl='/token/')
 
 T_Session = Annotated[AsyncSession, Depends(get_session)]
 T_Form_Barear = Annotated[str, Depends(oauth2_schme)]

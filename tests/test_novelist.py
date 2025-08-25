@@ -70,3 +70,30 @@ def test_delete_novelist_not_found(
 
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json()['detail'] == 'Romancista não encontrado no MADR'
+
+
+def test_get_novelist_id(
+    client: TestClient,
+    users: list[dict[str, str]],
+    novelist: Novelist,
+):
+    response = client.get(
+        '/romancista/1',
+        headers={'Authorization': f'Bearer {users[0]["token"]}'},
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json()['name'] == 'test1'
+
+
+def test_get_novelist_id_not_found(
+    client: TestClient,
+    users: list[dict[str, str]]
+):
+    response = client.get(
+        '/romancista/1',
+        headers={'Authorization': f'Bearer {users[0]["token"]}'},
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json()['detail'] == 'Romancista não consta no MADR'
