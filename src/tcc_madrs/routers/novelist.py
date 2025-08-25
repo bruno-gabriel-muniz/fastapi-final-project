@@ -59,16 +59,22 @@ async def delete_novelist(
     user: T_User,
     session: T_Session,
 ):
+    logger.info('inciando a remoção de um romancista')
+
+    logger.info('procurando o romancista')
     novelist = await session.scalar(select(Novelist).where(Novelist.id == id))
 
     if not novelist:
+        logger.info('romancista não encontrado')
         raise HTTPException(
             HTTPStatus.NOT_FOUND,
             detail='Romancista não encontrado no MADR',
         )
 
+    logger.info('removendo o romancista')
     await session.delete(novelist)
 
+    logger.info('retornando')
     return {'message': 'Romancista deletada no MADR'}
 
 
@@ -78,11 +84,16 @@ async def get_novelist_id(
     session: T_Session,
     user: T_User,
 ):
+    logger.info('iniciando o get_novelist_id')
+
+    logger.info('procurando o novelista')
     novelist = await session.scalar(select(Novelist).where(Novelist.id == id))
 
     if not novelist:
+        logger.info('novelista não encontrado')
         raise HTTPException(
             HTTPStatus.NOT_FOUND, detail='Romancista não consta no MADR'
         )
 
+    logger.info('retornando o novelista')
     return novelist

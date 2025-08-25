@@ -33,7 +33,7 @@ T_User = Annotated[User, Depends(get_current_user)]
 @app.post('/token/', response_model=Token)
 async def get_access_token(form_data: T_Form, session: T_Session):
     logger.info('inciando a criação de um token')
-    user = await session.scalar(
+    user: User | None = await session.scalar(
         select(User).where(User.email == form_data.username)
     )
 
@@ -51,7 +51,7 @@ async def get_access_token(form_data: T_Form, session: T_Session):
 
     logger.info('criando o token')
     token = {
-        'token_type': 'barrear',
+        'token_type': 'bearer',
         'access_token': create_access_token({'sub': user.email}),
     }
 
@@ -63,7 +63,7 @@ async def get_access_token(form_data: T_Form, session: T_Session):
 async def refresh_access_token(user: T_User):
     logger.info('fazendo refresh de um token')
     token = {
-        'token_type': 'barrear',
+        'token_type': 'bearer',
         'access_token': create_access_token({'sub': user.email}),
     }
 

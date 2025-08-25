@@ -17,7 +17,7 @@ from src.tcc_madrs.settings import Settings
 
 pwd_context = PasswordHash.recommended()
 
-oauth2_schme = OAuth2PasswordBearer(tokenUrl='/token/')
+oauth2_schme = OAuth2PasswordBearer(tokenUrl='token')
 
 T_Session = Annotated[AsyncSession, Depends(get_session)]
 T_Form_Barear = Annotated[str, Depends(oauth2_schme)]
@@ -32,7 +32,7 @@ def valid_password_hash(password: str, hash: str) -> bool:
 
 
 def create_access_token(data: dict) -> str:
-    settings = Settings()  # type: ignore
+    settings: Settings = Settings()  # type: ignore
 
     logger.info('criando token')
 
@@ -54,7 +54,7 @@ async def get_current_user(session: T_Session, token: T_Form_Barear):
     credentials_error = HTTPException(
         HTTPStatus.UNAUTHORIZED,
         detail='Could not validate credentials',
-        headers={'WWW-Authenticate': 'Bearer'},
+        headers={'WWW-Authenticate': 'bearer'},
     )
     stg = Settings()  # type: ignore
 
