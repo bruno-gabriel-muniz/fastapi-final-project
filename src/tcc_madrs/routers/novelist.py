@@ -89,7 +89,6 @@ async def delete_novelist(
 async def get_novelist_id(
     id: int,
     session: T_Session,
-    user: T_User,
 ):
     logger.info('iniciando o get_novelist_id')
 
@@ -110,7 +109,6 @@ async def get_novelist_id(
 async def get_novelist_by_filter(
     filter: T_Filter,
     session: T_Session,
-    user: T_User,
 ):
     logger.info('iniciando um get romancista por filtro')
 

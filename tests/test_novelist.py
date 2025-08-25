@@ -74,12 +74,10 @@ def test_delete_novelist_not_found(
 
 def test_get_novelist_id(
     client: TestClient,
-    users: list[dict[str, str]],
     novelist: Novelist,
 ):
     response = client.get(
         '/romancista/1',
-        headers={'Authorization': f'Bearer {users[0]["token"]}'},
     )
 
     assert response.status_code == HTTPStatus.OK
@@ -87,11 +85,10 @@ def test_get_novelist_id(
 
 
 def test_get_novelist_id_not_found(
-    client: TestClient, users: list[dict[str, str]]
+    client: TestClient
 ):
     response = client.get(
         '/romancista/1',
-        headers={'Authorization': f'Bearer {users[0]["token"]}'},
     )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
@@ -101,11 +98,9 @@ def test_get_novelist_id_not_found(
 def test_get_novelist_by_filter(
     client: TestClient,
     novelists: list[dict[str, str | int]],
-    users: list[dict[str, str]],
 ):
     response = client.get(
         '/romancista/?name=t',
-        headers={'Authorization': f'bearer {users[0]["token"]}'},
     )
 
     assert response.status_code == HTTPStatus.OK
@@ -118,11 +113,9 @@ def test_get_novelist_by_filter(
 def test_get_novelist_by_filter_without_novelist_valid(
     client: TestClient,
     novelists: list[dict[str, str | int]],
-    users: list[dict[str, str]],
 ):
     response = client.get(
         '/romancista/?name=a',
-        headers={'Authorization': f'bearer {users[0]["token"]}'},
     )
 
     assert response.status_code == HTTPStatus.OK
