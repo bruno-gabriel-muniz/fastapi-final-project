@@ -154,7 +154,6 @@ async def novelists(session: AsyncSession) -> list[dict[str, str | int]]:
         {'name': 'test1', 'id': 1},
         {'name': 'test2', 'id': 2},
         {'name': 'test3', 'id': 3},
-
     ]
 
     return list_novelist

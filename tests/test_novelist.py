@@ -25,7 +25,7 @@ def test_create_novelist(client: TestClient, users: list[dict[str, str]]):
     assert data['id'] == 1
 
 
-def test_create_novelist_conf(
+def test_create_novelist_conflict(
     client: TestClient, users: list[dict[str, str]], novelist: Novelist
 ):
     response = client.post(
@@ -38,38 +38,69 @@ def test_create_novelist_conf(
     assert response.json()['detail'] == 'romancista já consta no MADR'
 
 
-@pytest.mark.asyncio
-async def test_delete_novelist(
+def test_update_novelist(
     client: TestClient,
     users: list[dict[str, str]],
-    session: AsyncSession,
     novelist: Novelist,
 ):
-    response = client.delete(
+    response = client.patch(
         '/romancista/1',
-        headers={'Authorization': f'Bearer {users[0]["token"]}'},
+        headers={'Authorization': f'bearer {users[0]["token"]}'},
+        json={'name': 'test'},
     )
 
     assert response.status_code == HTTPStatus.OK
-    assert response.json()['message'] == 'Romancista deletada no MADR'
 
-    novelist_in_db = await session.scalar(
-        select(Novelist).where(Novelist.id == novelist.id)
+    data = response.json()
+
+    assert data['name'] == 'test'
+
+
+def test_update_novelist_with_same_name(
+    client: TestClient,
+    users: list[dict[str, str]],
+    novelist: Novelist,
+):
+    response = client.patch(
+        '/romancista/1',
+        headers={'Authorization': f'bearer {users[0]["token"]}'},
+        json={'name': 'test1'},
     )
 
-    assert novelist_in_db is None
+    assert response.status_code == HTTPStatus.OK
+
+    data = response.json()
+
+    assert data['name'] == 'test1'
 
 
-def test_delete_novelist_not_found(
-    client: TestClient, users: list[dict[str, str]]
+def test_update_novelist_not_found(
+    client: TestClient,
+    users: list[dict[str, str]],
 ):
-    response = client.delete(
+    response = client.patch(
         '/romancista/1',
-        headers={'Authorization': f'Bearer {users[0]["token"]}'},
+        headers={'Authorization': f'bearer {users[0]["token"]}'},
+        json={'name': 'test1'},
     )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json()['detail'] == 'Romancista não encontrado no MADR'
+    assert response.json()['detail'] == 'Romancista não consta no MADR'
+
+
+def test_update_novelist_with_conflict(
+    client: TestClient,
+    users: list[dict[str, str]],
+    novelists: list[dict[str, str | int]],
+):
+    response = client.patch(
+        '/romancista/1',
+        headers={'Authorization': f'bearer {users[0]["token"]}'},
+        json={'name': 'test2'},
+    )
+
+    assert response.status_code == HTTPStatus.CONFLICT
+    assert response.json()['detail'] == 'romancista.name já consta no MADR'
 
 
 def test_get_novelist_id(
@@ -84,9 +115,7 @@ def test_get_novelist_id(
     assert response.json()['name'] == 'test1'
 
 
-def test_get_novelist_id_not_found(
-    client: TestClient
-):
+def test_get_novelist_id_not_found(client: TestClient):
     response = client.get(
         '/romancista/1',
     )
@@ -123,3 +152,37 @@ def test_get_novelist_by_filter_without_novelist_valid(
     data = response.json()
 
     assert data['romancistas'] == []
+
+
+@pytest.mark.asyncio
+async def test_delete_novelist(
+    client: TestClient,
+    users: list[dict[str, str]],
+    session: AsyncSession,
+    novelist: Novelist,
+):
+    response = client.delete(
+        '/romancista/1',
+        headers={'Authorization': f'Bearer {users[0]["token"]}'},
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json()['message'] == 'Romancista deletada no MADR'
+
+    novelist_in_db = await session.scalar(
+        select(Novelist).where(Novelist.id == novelist.id)
+    )
+
+    assert novelist_in_db is None
+
+
+def test_delete_novelist_not_found(
+    client: TestClient, users: list[dict[str, str]]
+):
+    response = client.delete(
+        '/romancista/1',
+        headers={'Authorization': f'Bearer {users[0]["token"]}'},
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json()['detail'] == 'Romancista não encontrado no MADR'

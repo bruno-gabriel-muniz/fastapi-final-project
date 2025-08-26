@@ -60,31 +60,6 @@ async def create_novelist(
     return novelist_db
 
 
-@router.delete('/{id}', status_code=HTTPStatus.OK, response_model=Message)
-async def delete_novelist(
-    id: int,
-    user: T_User,
-    session: T_Session,
-):
-    logger.info('inciando a remoção de um romancista')
-
-    logger.info('procurando o romancista')
-    novelist = await session.scalar(select(Novelist).where(Novelist.id == id))
-
-    if not novelist:
-        logger.info('romancista não encontrado')
-        raise HTTPException(
-            HTTPStatus.NOT_FOUND,
-            detail='Romancista não encontrado no MADR',
-        )
-
-    logger.info('removendo o romancista')
-    await session.delete(novelist)
-
-    logger.info('retornando')
-    return {'message': 'Romancista deletada no MADR'}
-
-
 @router.get('/{id}', status_code=HTTPStatus.OK, response_model=NovelistDB)
 async def get_novelist_id(
     id: int,
@@ -123,3 +98,66 @@ async def get_novelist_by_filter(
         query.offset(filter.offset).limit(filter.limit)
     )
     return {'romancistas': result.all()}
+
+
+@router.patch('/{id}', status_code=HTTPStatus.OK, response_model=NovelistDB)
+async def update_novelist(
+    id: int, novelist: NovelistInput, session: T_Session, user: T_User
+):
+    logger.info('inciando a atualização de um romancista')
+
+    logger.info('buscando romancista no banco de dados')
+    novelist_db = await session.scalar(
+        select(Novelist).where(Novelist.id == id)
+    )
+
+    if not novelist_db:
+        logger.info('romancista não encontrado')
+        raise HTTPException(
+            HTTPStatus.NOT_FOUND, detail='Romancista não consta no MADR'
+        )
+
+    logger.info('procurando conflitos')
+    novelist_conflict = await session.scalar(
+        select(Novelist).where(Novelist.name == novelist.name)
+    )
+
+    if novelist_conflict and novelist_conflict.id != id:
+        logger.info('conflito encontrado')
+        raise HTTPException(
+            HTTPStatus.CONFLICT, detail='romancista.name já consta no MADR'
+        )
+
+    logger.info('atualizando o banco de dados')
+    novelist_db.name = novelist.name
+
+    session.add(novelist_db)
+    await session.commit()
+
+    logger.info('retornando')
+    return novelist_db
+
+
+@router.delete('/{id}', status_code=HTTPStatus.OK, response_model=Message)
+async def delete_novelist(
+    id: int,
+    user: T_User,
+    session: T_Session,
+):
+    logger.info('inciando a remoção de um romancista')
+
+    logger.info('procurando o romancista')
+    novelist = await session.scalar(select(Novelist).where(Novelist.id == id))
+
+    if not novelist:
+        logger.info('romancista não encontrado')
+        raise HTTPException(
+            HTTPStatus.NOT_FOUND,
+            detail='Romancista não encontrado no MADR',
+        )
+
+    logger.info('removendo o romancista')
+    await session.delete(novelist)
+
+    logger.info('retornando')
+    return {'message': 'Romancista deletada no MADR'}
