@@ -80,7 +80,7 @@ def test_update_novelist_not_found(
 ):
     response = client.patch(
         '/romancista/1',
-        headers={'Authorization': f'bearer {users[0]["token"]}'},
+        headers={'Authorization': f'bearer {users[1]["token"]}'},
         json={'name': 'test1'},
     )
 
@@ -95,7 +95,7 @@ def test_update_novelist_with_conflict(
 ):
     response = client.patch(
         '/romancista/1',
-        headers={'Authorization': f'bearer {users[0]["token"]}'},
+        headers={'Authorization': f'bearer {users[1]["token"]}'},
         json={'name': 'test2'},
     )
 
@@ -181,7 +181,7 @@ def test_delete_novelist_not_found(
 ):
     response = client.delete(
         '/romancista/1',
-        headers={'Authorization': f'Bearer {users[0]["token"]}'},
+        headers={'Authorization': f'Bearer {users[1]["token"]}'},
     )
 
     assert response.status_code == HTTPStatus.NOT_FOUND

@@ -38,11 +38,14 @@ class ListNovelist(BaseModel):
     romancistas: list[NovelistDB] = []
 
 
-# class Book(BaseModel):
-#     ano: int
-#     nome: str
-#     romancista_id: int
-#     id: int
+class BookInput(BaseModel):
+    year: int
+    name: str
+    romancista_id: int
+
+
+class BookDB(BookInput):
+    id: int
 
 
 class Token(BaseModel):

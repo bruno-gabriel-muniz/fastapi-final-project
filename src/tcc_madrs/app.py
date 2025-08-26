@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.tcc_madrs.database import get_session
 from src.tcc_madrs.models import User
+from src.tcc_madrs.routers.books import router as router_books
 from src.tcc_madrs.routers.novelist import router as router_novelist
 from src.tcc_madrs.routers.users import router as router_users
 from src.tcc_madrs.schemas import Token
@@ -24,6 +25,7 @@ app = FastAPI()
 
 app.include_router(router_novelist)
 app.include_router(router_users)
+app.include_router(router_books)
 
 T_Session = Annotated[AsyncSession, Depends(get_session)]
 T_Form = Annotated[OAuth2PasswordRequestForm, Depends()]

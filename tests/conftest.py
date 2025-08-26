@@ -10,7 +10,7 @@ from testcontainers.postgres import PostgresContainer
 
 from src.tcc_madrs.app import app
 from src.tcc_madrs.database import get_session
-from src.tcc_madrs.models import Novelist, User, table_registry
+from src.tcc_madrs.models import Book, Novelist, User, table_registry
 from src.tcc_madrs.security import get_password_hash
 from src.tcc_madrs.settings import Settings
 
@@ -157,3 +157,20 @@ async def novelists(session: AsyncSession) -> list[dict[str, str | int]]:
     ]
 
     return list_novelist
+
+
+@pytest_asyncio.fixture
+async def books(session: AsyncSession) -> list[dict[str, str | int]]:
+    book1 = Book(1999, 'livro1', 1)
+    book2 = Book(1999, 'livro2', 2)
+    book3 = Book(1999, 'livro3', 3)
+
+    session.add_all([book1, book2, book3])
+
+    await session.commit()
+
+    return [
+        {'year': 1999, 'name': 'livro1', 'romancista_id': 1, 'id': 1},
+        {'year': 1999, 'name': 'livro2', 'romancista_id': 2, 'id': 2},
+        {'year': 1999, 'name': 'livro3', 'romancista_id': 3, 'id': 3},
+    ]
