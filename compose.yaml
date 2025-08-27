@@ -19,6 +19,7 @@ services:
     depends_on:
       - madrs_database
     environment:
+      IS_DOCKER_CONTAINER: true
       DATABASE_URL: postgresql+psycopg://app_user:app_password@madrs_database:5432/app_db
 
 volumes:
