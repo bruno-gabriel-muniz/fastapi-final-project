@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from loguru import logger
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,12 +9,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.tcc_madrs.database import get_session
 from src.tcc_madrs.models import Book, User
 from src.tcc_madrs.sanitize import sanitize
-from src.tcc_madrs.schemas import BookDB, BookInput
+from src.tcc_madrs.schemas import BookDB, BookInput, FilterBooks, ListBookDB
 from src.tcc_madrs.security import get_current_user
 
 router = APIRouter(prefix='/livro', tags=['livros'])
 T_Session = Annotated[AsyncSession, Depends(get_session)]
 T_User = Annotated[User, Depends(get_current_user)]
+T_Filter = Annotated[FilterBooks, Query()]
 
 
 @router.post('/', status_code=HTTPStatus.CREATED, response_model=BookDB)
@@ -26,19 +27,21 @@ async def create_book(
     logger.info('iniciando a criação de um livro')
 
     logger.info('sanitizando o nome')
-    book.name = sanitize(book.name)
+    book.titulo = sanitize(book.titulo)
 
     logger.info('procurando conflitos')
-    conflict = await session.scalar(select(Book).where(Book.name == book.name))
+    conflict = await session.scalar(
+        select(Book).where(Book.titulo == book.titulo)
+    )
 
     if conflict:
         logger.info('informando o conflito')
         raise HTTPException(
-            HTTPStatus.CONFLICT, detail='livro.name já consta no MADR'
+            HTTPStatus.CONFLICT, detail='livro.titulo já consta no MADR'
         )
 
     logger.info('adicionando o livro no db')
-    book_db = Book(book.year, book.name, book.romancista_id)
+    book_db = Book(book.ano, book.titulo, book.romancista_id)
 
     session.add(book_db)
     await session.commit()
@@ -46,3 +49,42 @@ async def create_book(
 
     logger.info('retornando')
     return book_db
+
+
+@router.get('/{id}', status_code=HTTPStatus.OK, response_model=BookInput)
+async def get_book_by_id(id: int, session: T_Session):
+    logger.info('inciando get_book_by_id')
+
+    logger.info('procurando o livro no banco')
+    book = await session.scalar(select(Book).where(Book.id == id))
+
+    if not book:
+        logger.info('informando que o livro não foi encontrado')
+        raise HTTPException(
+            HTTPStatus.NOT_FOUND, detail='Livro não consta no MADR'
+        )
+
+    logger.info('retornando o  livro')
+    return book
+
+
+@router.get('/', status_code=HTTPStatus.OK, response_model=ListBookDB)
+async def get_books_by_filter(session: T_Session, filter: T_Filter):
+    logger.info('iniciando get_books_by_filter')
+
+    logger.info('montando a query')
+    query = select(Book)
+
+    if filter.titulo:
+        query = query.filter(Book.titulo.contains(filter.titulo))
+
+    if filter.ano:
+        query = query.filter(Book.ano == filter.ano)
+
+    logger.info('realizando a busca')
+    result = await session.scalars(
+        query.offset(filter.offset).limit(filter.limit)
+    )
+
+    logger.info('retornando')
+    return {'livros': result}

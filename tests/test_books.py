@@ -12,8 +12,8 @@ def test_create_book(
         '/livro/',
         headers={'Authorization': f'bearer {users[0]["token"]}'},
         json={
-            'year': 1999,
-            'name': 'test1',
+            'ano': 1999,
+            'titulo': 'test1',
             'romancista_id': 1,
         },
     )
@@ -28,18 +28,69 @@ def test_create_book(
 def test_create_book_with_conflict(
     client: TestClient,
     users: list[dict[str, str]],
-    novelists: list[dict[str, str | int]],
     books: list[dict[str, str | int]],
 ):
     response = client.post(
         '/livro/',
         headers={'Authorization': f'bearer {users[1]["token"]}'},
         json={
-            'year': 1999,
-            'name': 'livro1',
+            'ano': 1999,
+            'titulo': 'livro1',
             'romancista_id': 1,
         },
     )
 
     assert response.status_code == HTTPStatus.CONFLICT
-    assert response.json()['detail'] == 'livro.name já consta no MADR'
+    assert response.json()['detail'] == 'livro.titulo já consta no MADR'
+
+
+def test_get_book_by_id(client: TestClient, books: list[dict[str, str | int]]):
+    response = client.get(
+        '/livro/1',
+    )
+
+    assert response.status_code == HTTPStatus.OK
+
+    data = response.json()
+    books[0].pop('id')
+
+    assert data == books[0]
+
+
+def test_get_book_by_id_not_found(
+    client: TestClient,
+):
+    response = client.get(
+        '/livro/1',
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json()['detail'] == 'Livro não consta no MADR'
+
+
+def test_get_books_by_filter(
+    client: TestClient, books: list[dict[str, str | int]]
+):
+    response = client.get(
+        '/livro/?titulo=livr'
+    )
+
+    assert response.status_code == HTTPStatus.OK
+
+    data = response.json()
+
+    assert data['livros'] == books
+
+
+def test_get_books_by_filter_empyt_return(
+    client: TestClient, books: list[dict[str, str | int]]
+):
+    response = client.get(
+        '/livro/?ano=2000'
+    )
+
+    assert response.status_code == HTTPStatus.OK
+
+    data = response.json()
+
+    assert data['livros'] == []

@@ -34,7 +34,7 @@ class Novelist:
 
     name: Mapped[str] = mapped_column(unique=True)
 
-    books: Mapped[list['Book']] = relationship(
+    livros: Mapped[list['Book']] = relationship(
         init=False, cascade='all, delete-orphan', lazy='selectin'
     )
 
@@ -54,8 +54,8 @@ class Book:
 
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
-    year: Mapped[int]
-    name: Mapped[str] = mapped_column(unique=True)
+    ano: Mapped[int]
+    titulo: Mapped[str] = mapped_column(unique=True)
     romancista_id: Mapped[int] = mapped_column(ForeignKey('novelist.id'))
 
     created_at: Mapped[datetime] = mapped_column(

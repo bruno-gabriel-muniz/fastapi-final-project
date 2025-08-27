@@ -39,13 +39,22 @@ class ListNovelist(BaseModel):
 
 
 class BookInput(BaseModel):
-    year: int
-    name: str
+    ano: int
+    titulo: str
     romancista_id: int
 
 
 class BookDB(BookInput):
     id: int
+
+
+class FilterBooks(FilterPage):
+    titulo: str | None = None
+    ano: int | None = None
+
+
+class ListBookDB(BaseModel):
+    livros: list[BookDB]
 
 
 class Token(BaseModel):

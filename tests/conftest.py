@@ -160,7 +160,9 @@ async def novelists(session: AsyncSession) -> list[dict[str, str | int]]:
 
 
 @pytest_asyncio.fixture
-async def books(session: AsyncSession) -> list[dict[str, str | int]]:
+async def books(
+    novelists: list[dict[str, str | int]], session: AsyncSession
+) -> list[dict[str, str | int]]:
     book1 = Book(1999, 'livro1', 1)
     book2 = Book(1999, 'livro2', 2)
     book3 = Book(1999, 'livro3', 3)
@@ -170,7 +172,7 @@ async def books(session: AsyncSession) -> list[dict[str, str | int]]:
     await session.commit()
 
     return [
-        {'year': 1999, 'name': 'livro1', 'romancista_id': 1, 'id': 1},
-        {'year': 1999, 'name': 'livro2', 'romancista_id': 2, 'id': 2},
-        {'year': 1999, 'name': 'livro3', 'romancista_id': 3, 'id': 3},
+        {'ano': 1999, 'titulo': 'livro1', 'romancista_id': 1, 'id': 1},
+        {'ano': 1999, 'titulo': 'livro2', 'romancista_id': 2, 'id': 2},
+        {'ano': 1999, 'titulo': 'livro3', 'romancista_id': 3, 'id': 3},
     ]
