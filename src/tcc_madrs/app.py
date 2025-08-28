@@ -21,7 +21,7 @@ from src.tcc_madrs.security import (
 
 logger.add('app.log', rotation='500 KB')
 logger.info('iniciando o app')
-app = FastAPI()
+app = FastAPI(version='1.0.0', title='MADR')
 
 app.include_router(router_novelist)
 app.include_router(router_users)

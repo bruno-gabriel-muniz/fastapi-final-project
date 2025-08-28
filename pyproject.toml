@@ -1,6 +1,6 @@
 [project]
 name = "tcc-madrs"
-version = "0.2.0"
+version = "1.0.0"
 description = ""
 authors = [
     {name = "bruno-gabriel-muniz",email = "brunomunizlourenco@gmail.com"}
@@ -60,7 +60,7 @@ pre_upgrade_db = 'docker compose up -d madrs_database && alembic upgrade head'
 upgrade_db = 'app alembic revision --autogenerate -m'
 post_upgrade_db = 'docker compose stop madrs_database'
 pre_test = 'task lint'
-test = 'pytest -x --cov=src/tcc_madrs -vv'
+test = 'pytest -x --cov=src/tcc_madrs --cov-report=xml -vv'
 post_test = 'coverage html'
 
 

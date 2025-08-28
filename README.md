@@ -1,6 +1,19 @@
+![Top Language](https://img.shields.io/github/languages/top/bruno-gabriel-muniz/fastapi-final-project)
+![Build](https://github.com/bruno-gabriel-muniz/fastapi-final-project/actions/workflows/ci.yaml/badge.svg)
+[![codecov](https://codecov.io/gh/bruno-gabriel-muniz/fastapi-final-project/branch/main/graph/badge.svg)](https://codecov.io/gh/bruno-gabriel-muniz/fastapi-final-project)
+
+
 # fastapi-final-project
 
 Este repositório contém meu projeto de finalização do curso [FastAPI do Zero](https://fastapidozero.dunossauro.com/estavel/15/), organizado pelo @dunossauro.
+
+## Sumário:
+
+- [0. Minha Experiência Com o Curso](#0-minha-experiência-com-o-curso)
+- [1. Contexto](#1-contexto)
+- [2. Decisões](#2-decisões)
+- [3. Como Rodar](#3-como-rodar)
+- [4. Resultados](#4-resultados)
 
 ## 0. Minha Experiência Com o Curso
 
@@ -42,14 +55,52 @@ Escolhido devido a facilidade de uso, eficiência e validação automática de d
 
 A estrutura do projeto foi feita em uma unica camada devido a simplicidade e falta de um Front-end.
 
-## 3. Progresso Atual
+Pastas:
+```
+├── migrations
+│
+├── src
+│   ├── __init__.py
+│   └── tcc_madrs
+│       ├── app.py
+│       ├── database.py
+│       ├── __init__.py
+│       ├── models.py
+│       ├── routers
+│       │   ├── books.py
+│       │   ├── novelist.py
+│       │   └── users.py
+│       ├── sanitize.py
+│       ├── schemas.py
+│       ├── security.py
+│       └── settings.py
+└── tests
+    ├── conftest.py
+    ├── __init__.py
+    ├── test_app.py
+    ├── test_books.py
+    ├── test_conta.py
+    ├── test_db.py
+    └── test_novelist.py
 
-Sistema de usuário, romancistas, autenticação, docker e banco de dados funcionando.
+```
 
-Próximos passo: Aplicar o CRUD dos livros.
+## 3. Como Rodar
 
-## 4. Como Rodar
 
+### 3.1. Variáveis do Settings
+
+As variáveis de ambiente necessárias para o funcionamento do projeto estão no arquivo `.env`. Um exemplo de configuração é:
+
+```
+DATABASE_URL_UPDATE="postgresql+psycopg://app_user:app_password@127.0.0.1:5432/app_db"
+DATABASE_URL="postgresql+psycopg://app_user:app_password@madrs_database:5432/app_db"
+SECRET_KEY=your_secret_key
+ALGORITHM = 'HS256'
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
+```
+
+### 3.2. Comandos e Requisitos
 Para rodar o projeto, é necessário ter o Poetry instalado. Além disso, siga os seguintes passos:
 
 1. Clone o repositório:
@@ -78,6 +129,10 @@ Para rodar o projeto, é necessário ter o Poetry instalado. Além disso, siga o
    task run
    ```
 
-## 5. Resultados
+## 4. Resultados
 
-...
+Consegui ter uma boa experiência prática, ao aprender a usar o FastAPI e outras ferramentas de desenvolvimento.
+
+Assim como, consegui manter um bom ritmo de estudos e implementações, fazendo, cumprindo e replanejando prazos, conforme o necessário, para entregar o projeto em 2 semanas.
+
+Assim sendo, estou satisfeito com o resultado final e ansioso para aplicar o que aprendi em projetos futuros.
