@@ -149,3 +149,28 @@ def test_update_book_with_conflict(
 
     assert response.status_code == HTTPStatus.CONFLICT
     assert response.json()['detail'] == 'book.titulo já consta no MADR'
+
+
+def test_delete_book(
+    client: TestClient,
+    users: list[dict[str, str | int]],
+    books: list[dict[str, str | int]],
+):
+    response = client.delete(
+        '/livro/1', headers={'Authorization': f'bearer {users[0]["token"]}'}
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json()['message'] == 'Livro deletado no MADR'
+
+
+def test_delete_book_not_found(
+    client: TestClient,
+    users: list[dict[str, str | int]],
+):
+    response = client.delete(
+        '/livro/1', headers={'Authorization': f'bearer {users[0]["token"]}'}
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json()['detail'] == 'Livro não consta no MADR'

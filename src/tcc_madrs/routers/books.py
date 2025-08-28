@@ -15,6 +15,7 @@ from src.tcc_madrs.schemas import (
     BookPatch,
     FilterBooks,
     ListBookDB,
+    Message,
 )
 from src.tcc_madrs.security import get_current_user
 
@@ -143,3 +144,27 @@ async def update_book(
 
     logger.info('retornando')
     return book_db
+
+
+@router.delete('/{id}', status_code=HTTPStatus.OK, response_model=Message)
+async def delete_book(
+    id: int,
+    session: T_Session,
+    user: T_User,
+):
+    logger.info('inciando delete_book')
+
+    logger.info('procurando o livro')
+    book_db = await session.scalar(select(Book).where(Book.id == id))
+
+    if not book_db:
+        logger.info('livro não encontrado')
+        raise HTTPException(
+            HTTPStatus.NOT_FOUND, detail='Livro não consta no MADR'
+        )
+
+    logger.info('deletando o livro')
+    await session.delete(book_db)
+
+    logger.info('retornando')
+    return {'message': 'Livro deletado no MADR'}
