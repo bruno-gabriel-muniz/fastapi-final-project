@@ -46,7 +46,7 @@ def test_update_novelist(
     response = client.patch(
         '/romancista/1',
         headers={'Authorization': f'bearer {users[0]["token"]}'},
-        json={'name': 'test'},
+        json={'name': 'Test'},
     )
 
     assert response.status_code == HTTPStatus.OK
@@ -96,7 +96,7 @@ def test_update_novelist_with_conflict(
     response = client.patch(
         '/romancista/1',
         headers={'Authorization': f'bearer {users[1]["token"]}'},
-        json={'name': 'test2'},
+        json={'name': 'Test2'},
     )
 
     assert response.status_code == HTTPStatus.CONFLICT

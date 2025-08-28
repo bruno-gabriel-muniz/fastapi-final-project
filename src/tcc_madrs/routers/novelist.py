@@ -119,7 +119,7 @@ async def update_novelist(
 
     logger.info('procurando conflitos')
     novelist_conflict = await session.scalar(
-        select(Novelist).where(Novelist.name == novelist.name)
+        select(Novelist).where(Novelist.name == sanitize(novelist.name))
     )
 
     if novelist_conflict and novelist_conflict.id != id:
@@ -129,7 +129,7 @@ async def update_novelist(
         )
 
     logger.info('atualizando o banco de dados')
-    novelist_db.name = novelist.name
+    novelist_db.name = sanitize(novelist.name)
 
     session.add(novelist_db)
     await session.commit()

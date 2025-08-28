@@ -48,6 +48,12 @@ class BookDB(BookInput):
     id: int
 
 
+class BookPatch(BaseModel):
+    ano: int | None = None
+    titulo: str | None = None
+    romancista_id: int | None = None
+
+
 class FilterBooks(FilterPage):
     titulo: str | None = None
     ano: int | None = None

@@ -48,7 +48,7 @@ def test_update_conta(client: TestClient, users: list[dict[str, str]]):
         '/conta/1',
         headers={'Authorization': f'Bearer {users[0]["token"]}'},
         json={
-            'username': 'Alice',
+            'username': 'Alice test',
             'email': users[0]['email'],
             'password': users[0]['password'],
         },
@@ -58,7 +58,7 @@ def test_update_conta(client: TestClient, users: list[dict[str, str]]):
 
     data = response.json()
 
-    assert data['username'] == 'Alice'
+    assert data['username'] == 'alice test'
 
 
 def test_update_conta_conflit(client: TestClient, users: list[dict[str, str]]):
@@ -66,7 +66,7 @@ def test_update_conta_conflit(client: TestClient, users: list[dict[str, str]]):
         '/conta/2',
         headers={'Authorization': f'Bearer {users[1]["token"]}'},
         json={
-            'username': 'alice',
+            'username': 'Alice',
             'email': users[1]['email'],
             'password': users[1]['password'],
         },

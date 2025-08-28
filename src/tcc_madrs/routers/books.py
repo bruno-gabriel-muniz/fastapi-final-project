@@ -9,7 +9,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.tcc_madrs.database import get_session
 from src.tcc_madrs.models import Book, User
 from src.tcc_madrs.sanitize import sanitize
-from src.tcc_madrs.schemas import BookDB, BookInput, FilterBooks, ListBookDB
+from src.tcc_madrs.schemas import (
+    BookDB,
+    BookInput,
+    BookPatch,
+    FilterBooks,
+    ListBookDB,
+)
 from src.tcc_madrs.security import get_current_user
 
 router = APIRouter(prefix='/livro', tags=['livros'])
@@ -88,3 +94,52 @@ async def get_books_by_filter(session: T_Session, filter: T_Filter):
 
     logger.info('retornando')
     return {'livros': result}
+
+
+@router.patch('/{id}', status_code=HTTPStatus.OK, response_model=BookInput)
+async def update_book(
+    id: int,
+    book: BookPatch,
+    session: T_Session,
+    user: T_User,
+):
+    logger.info('iniciando update_book')
+
+    logger.info('procurando o livro')
+    book_db = await session.scalar(select(Book).where(Book.id == id))
+
+    if not book_db:
+        logger.info('livro não encontrado')
+        raise HTTPException(
+            HTTPStatus.NOT_FOUND, detail='Livro não consta no MADR'
+        )
+
+    logger.info('validando conflitos')
+    if book.titulo:
+        have_conflict = await session.scalar(
+            select(Book).where(Book.titulo == sanitize(book.titulo))
+        )
+
+    if have_conflict:
+        logger.info('conflito encontrado')
+        raise HTTPException(
+            HTTPStatus.CONFLICT, detail='book.titulo já consta no MADR'
+        )
+
+    logger.info('atualizando o livro')
+    if book.titulo:
+        book_db.titulo = sanitize(book.titulo)
+
+    if book.ano:
+        book_db.ano = book.ano
+
+    if book.romancista_id:
+        book_db.romancista_id = book.romancista_id
+
+    logger.info('salvando as alterações')
+    session.add(book_db)
+    await session.commit()
+    await session.refresh(book_db)
+
+    logger.info('retornando')
+    return book_db

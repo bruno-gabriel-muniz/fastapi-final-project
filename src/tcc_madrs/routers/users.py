@@ -67,7 +67,8 @@ async def update_user(
 
     data_in_use = await session.scalar(
         select(User).where(
-            (User.email == user.email) | (User.username == user.username)
+            (User.email == user.email)
+            | (User.username == sanitize(user.username))
         )
     )
     if data_in_use and data_in_use.id != id:
@@ -76,7 +77,7 @@ async def update_user(
         )
 
     logger.info('alterando o user')
-    db_user.username = user.username
+    db_user.username = sanitize(user.username)
     db_user.email = user.email
     db_user.password = user.password
 
